@@ -1,5 +1,4 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
@@ -15,19 +14,48 @@ function App() {
   return (
     <main className="container">
       <h1>Add Patient</h1>
+      <button type="button">Outside target</button>
+      <form className="flex justify-center">
+        <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+          <legend className="fieldset-legend">Patient Details</legend>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+          <label htmlFor="first-name" className="label">First Name</label>
+          <input
+            type="text"
+            className="input"
+            id="first-name"
+            name="first-name"
+          />
+          <label htmlFor="last-name" className="label">Last Name</label>
+          <input
+            type="text"
+            className="input"
+            id="last-name"
+            name="last-name"
+          />
+          <label htmlFor="middle-name" className="label">Middle Name</label>
+          <input
+            type="text"
+            className="input"
+            id="middle-name"
+            name="middle-name"
+          />
+          <label htmlFor="dob" className="label">Date of Birth</label>
+          <input
+            type="date"
+            className="input"
+            id="dob"
+            name="dob"
+          />
+          <label htmlFor="sex" className="label">Date of Birth</label>
+          <select id="sex" name="sex" className="select">
+            <option value="U">Unknown</option>
+            <option value="F">Female</option>
+            <option value="M">Male</option>
+            <option value="O">Other/Intersex</option>
+          </select>
+        </fieldset>
+      </form>
 
       <form
         className="row"
