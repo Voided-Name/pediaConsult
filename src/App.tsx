@@ -12,11 +12,15 @@ function App() {
   }
 
   return (
-    <main className="container">
-      <h1>Add Patient</h1>
-      <button type="button">Outside target</button>
-      <form className="flex justify-center">
-        <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+    <main className="w-full">
+      <h1>PediaConsult</h1>
+      <form className="flex justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          greet();
+        }}
+      >
+        <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 flex flex-col gap-2">
           <legend className="fieldset-legend">Patient Details</legend>
 
           <label htmlFor="first-name" className="label">First Name</label>
