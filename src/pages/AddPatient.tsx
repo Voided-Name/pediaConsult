@@ -31,12 +31,14 @@ function AddPatient() {
     setSuccess(false);
 
     try {
-      const patient = await invoke<Patient>("app_patient", {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        middleName,
-        dateOfBirth,
-        sex,
+      const patient = await invoke<Patient>("create_patient", {
+        patient: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          middleName,
+          dateOfBirth,
+          sex,
+        }
       });
 
       console.log("Patient created: ", patient)

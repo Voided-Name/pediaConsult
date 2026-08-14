@@ -75,7 +75,7 @@ async fn find_patient_by_id(db: &SqlitePool, id: i64) -> Result<Option<Patient>>
             middle_name,
             date_of_birth,
             sex,
-            created_at,
+            created_at
         FROM patient
         WHERE id = ?
         "#,
@@ -100,9 +100,9 @@ async fn create_patient(
             last_name,
             middle_name,
             date_of_birth,
-            sex,
+            sex
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
         "#,
     )
     .bind(&patient.first_name)
