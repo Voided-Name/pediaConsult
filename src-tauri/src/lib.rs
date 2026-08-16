@@ -23,6 +23,14 @@ struct Patient {
     created_at: String,
 }
 
+#[derive(Debug, Serialize, FromRow)]
+#[serde(rename_all = "camelCase")]
+struct Measure {
+    l_value: f64,
+    m_value: f64,
+    s_value: f64,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CreatePatient {
@@ -60,6 +68,10 @@ async fn init_database(db_path: PathBuf) -> Result<SqlitePool> {
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
+        .map_err(|err| {
+            eprintln!("Migration error: {err:#?}");
+            err
+        })
         .context("Failed to run migrations")?;
 
     Ok(pool)
@@ -151,6 +163,61 @@ async fn get_patient(state: State<'_, AppState>, id: i64) -> Result<Option<Patie
 }
 
 #[tauri::command]
+async fn get_z_score(
+    state: State<'_, AppState>,
+    indicator: String,
+    age_days: i64,
+    value: f64,
+) -> Result<f64, String> {
+    let measure = get_stat_measures(&state.db, indicator.clone(), age_days)
+        .await
+        .map_err(|error| format!("{error:#}"))?
+        .ok_or_else(|| {
+            format!(
+                "No measures found for indicator '{}' at {} days",
+                indicator, age_days
+            )
+        })?;
+
+    let z_score: f64;
+
+    if measure.l_value == 0.0 {
+        z_score = ((value / measure.m_value).powf(measure.l_value) - 1.0) / measure.s_value;
+    } else {
+        z_score = ((value / measure.m_value).ln()) / measure.s_value;
+    }
+
+    Ok(z_score)
+}
+
+async fn get_stat_measures(
+    db: &SqlitePool,
+    indicator: String,
+    age_days: i64,
+) -> Result<Option<Measure>> {
+    let measure = sqlx::query_as::<_, Measure>(
+        r#"
+        SELECT
+            l_value,
+            m_value,
+            s_value
+        FROM growth_reference
+        WHERE
+        indicator = ?
+        AND
+        age_days = ?
+        "#,
+    )
+    .bind(&indicator)
+    .bind(&age_days)
+    .fetch_optional(db)
+    .await
+    .context("Failed to find z_score")?;
+
+    Ok(measure)
+}
+
+#[tauri::command]
 async fn update_patient(
     state: State<'_, AppState>,
     id: i64,
@@ -231,7 +298,8 @@ pub fn run() {
             list_patients,
             get_patient,
             update_patient,
-            delete_patient
+            delete_patient,
+            get_z_score
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

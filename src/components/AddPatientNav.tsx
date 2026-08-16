@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 
-function EncounterNav() {
+function AddPatientNav() {
   return (
-    <div className="grid grid-cols-4 gap-3 p-3">
+    <div className="grid grid-cols-4 gap-3">
       <Link to="/" className="col-span-1">
         <button className="bg-emerald-700 text-white p-2 rounded-sm w-full hover:bg-emerald-600 transition-colors duration-150 ease-in-out">
           <div className="flex items-center justify-center">
@@ -27,8 +27,8 @@ function EncounterNav() {
           </div>
         </button>
       </Link>
-      <Link to="/patient/add" className="col-span-1">
-        <button className="bg-slate-700 text-white p-2 rounded-sm w-full hover:bg-slate-600 transition-colors duration-150 ease-in-out">
+      <Link to="/encounter/add" className="col-span-1">
+        <button className="bg-slate-200 text-slate-950 p-2 rounded-sm w-full hover:bg-slate-300 transition-colors duration-150 ease-in-out">
           <div className="flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -40,14 +40,14 @@ function EncounterNav() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-user-plus-icon lucide-user-plus"
+              className="lucide lucide-file-plus-corner-icon lucide-file-plus-corner"
             >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" x2="19" y1="8" y2="14" />
-              <line x1="22" x2="16" y1="11" y2="11" />
+              <path d="M11.35 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v5.35" />
+              <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+              <path d="M14 19h6" />
+              <path d="M17 16v6" />
             </svg>
-            <p className="ps-2">Add Patient</p>
+            <p className="ps-2">Add Encounter</p>
           </div>
         </button>
       </Link>
@@ -55,4 +55,4 @@ function EncounterNav() {
   );
 }
 
-export default EncounterNav;
+export default AddPatientNav;

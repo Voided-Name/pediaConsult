@@ -6,7 +6,7 @@ type ChildProps = {
   onSelectPatientId: (id: number) => void;
 }
 
-function SelectPatientNewEncounter({patients, onSelectPatientId}: ChildProps) {
+function SelectPatientNewEncounter({ patients, onSelectPatientId }: ChildProps) {
   const [chosenPatient, setChosenPatient] = useState("");
 
   const onSelectPatient = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +44,7 @@ function SelectPatientNewEncounter({patients, onSelectPatientId}: ChildProps) {
           </svg>
         </div>
         <input
+          autoFocus
           list="patient-list"
           id="patient-choice"
           value={chosenPatient}
