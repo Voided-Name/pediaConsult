@@ -6,6 +6,7 @@ import "flatpickr/dist/flatpickr.css";
 import Sidebar from "../components/Sidebar";
 import { inputStyle } from "../utils/style";
 import { keymap } from "../utils/keymap";
+import toast from "react-hot-toast";
 
 type Patient = {
   id: number;
@@ -48,8 +49,6 @@ function AddPatient() {
         },
       });
 
-      console.log("Patient created: ", patient);
-
       setSuccess(true);
       setFirstName("");
       setLastName("");
@@ -57,11 +56,12 @@ function AddPatient() {
       setDateOfBirth("");
       setSex("Female");
     } catch (error) {
-      console.error("Failed to add patient", error);
+      toast.error("Failed to add patient");
 
       setError(typeof error === "string" ? error : "Failed to add patient.");
     } finally {
       setSaving(false);
+      toast.success("Patient added");
     }
   }
   return (
@@ -117,11 +117,6 @@ function AddPatient() {
               <option value="M">Male</option>
             </select>
 
-            {error && <p className="text-red-600">{error}</p>}
-
-            {success && (
-              <p className="text-emerald-700">Patient Added Succesfully.</p>
-            )}
             <button
               className="p-3 bg-slate-900 border-slate-700 text-white rounded-md hover:bg-slate-800 dark:bg-slate-300 dark:text-slate-950 dark:hover:bg-slate-400 transition-colors duration-300"
               type="submit"

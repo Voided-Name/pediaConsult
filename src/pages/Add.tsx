@@ -8,16 +8,8 @@ import AgeDisplay from "../components/AgeDisplay";
 import Sidebar from "../components/Sidebar";
 import { keymap } from "../utils/keymap";
 import { Link } from "react-router";
+import { Patient } from "../utils/types.ts"
 
-export type Patient = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  middleName: string | null;
-  dateOfBirth: string;
-  sex: string;
-  created_at: string;
-};
 
 export type Measure = {
   l_value: number;
@@ -173,14 +165,18 @@ function AddPage() {
                 <h1 className="font-bold text-xl underline mb-2">
                   Clinical Measurements
                 </h1>
-                <label>Weight(kg): </label>
-                <input
-                  onBlur={() => onBlurWeight()}
-                  onChange={(e) => setWeight(Number(e.target.value))}
-                  type="number"
-                  className="p-2 rounded-md border border-slate-400 bg-white w-30"
-                ></input>
-                {weightScore ? <p>Z-Score: {weightScore}</p> : ""}
+                <div className="grid grid-cols-3">
+                  <div className="col-span-1">
+                    <label className="inline-block min-w-24">Weight(kg): </label>
+                    <input
+                      onBlur={() => onBlurWeight()}
+                      onChange={(e) => setWeight(Number(e.target.value))}
+                      type="number"
+                      className="p-2 rounded-md border border-slate-400 bg-white w-30"
+                    ></input>
+                    {weightScore ? <p className='mt-2'><span className=" min-w-24 inline-block">Z-Score: </span> <span className="p-2">{Math.round(weightScore * 100) / 100}</span></p> : ""}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
