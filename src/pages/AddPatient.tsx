@@ -54,7 +54,7 @@ function AddPatient() {
       setLastName("");
       setMiddleName("");
       setDateOfBirth("");
-      setSex("Female");
+      setSex("F");
     } catch (error) {
       toast.error("Failed to add patient");
 

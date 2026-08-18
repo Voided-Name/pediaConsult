@@ -31,6 +31,19 @@ struct Measure {
     s_value: f64,
 }
 
+impl Measure {
+    pub fn interpolate(&self, other: &Self, t: f64) -> Self {
+        dbg!(t);
+        let lerp = |a: f64, b: f64| a + (t * (b - a));
+
+        Self {
+            l_value: lerp(self.l_value, other.l_value),
+            m_value: lerp(self.m_value, other.m_value),
+            s_value: lerp(self.s_value, other.s_value),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CreatePatient {
@@ -166,37 +179,61 @@ async fn get_patient(state: State<'_, AppState>, id: i64) -> Result<Option<Patie
 async fn get_z_score(
     state: State<'_, AppState>,
     indicator: String,
-    age_days: i64,
+    x_variable: i64,
     value: f64,
-) -> Result<f64, String> {
-    let measure = get_stat_measures(&state.db, indicator.clone(), age_days)
+    sex: String,
+) -> Result<Option<f64>, String> {
+    let measure = get_stat_measures(&state.db, indicator.clone(), x_variable, sex)
         .await
-        .map_err(|error| format!("{error:#}"))?
-        .ok_or_else(|| {
-            format!(
-                "No measures found for indicator '{}' at {} days",
-                indicator, age_days
-            )
-        })?;
+        .map_err(|error| format!("{error:#}"))?;
+
+    let Some(measure) = measure else {
+        return Ok(None);
+    };
+
+    dbg!(&measure);
 
     let z_score: f64;
 
     if measure.l_value == 0.0 {
-        z_score = ((value / measure.m_value).powf(measure.l_value) - 1.0) / measure.s_value;
-    } else {
         z_score = ((value / measure.m_value).ln()) / measure.s_value;
+    } else {
+        z_score = ((value / measure.m_value).powf(measure.l_value) - 1.0)
+            / (measure.l_value * measure.s_value);
     }
 
-    Ok(z_score)
+    Ok(Some(z_score))
 }
 
 async fn get_stat_measures(
     db: &SqlitePool,
     indicator: String,
-    age_days: i64,
+    x_variable: i64,
+    sex: String,
 ) -> Result<Option<Measure>> {
-    let measure = sqlx::query_as::<_, Measure>(
-        r#"
+    let actual_indicator: String;
+    let is_months: bool;
+    let measure: Option<Measure>;
+    let measure_lower: Option<Measure>;
+    let measure_upper: Option<Measure>;
+
+    let (actual_indicator, is_months) = match (indicator.as_str(), x_variable) {
+        ("WFA", x) if x < 1857 => (indicator.to_string(), false),
+        ("HFA", x) if x < 1857 => (String::from("LHFA"), false),
+        ("WFA", x) if (x as f64 / 30.4375) <= 120.0 => ("WFAMonth".to_string(), true),
+        ("HFA", x) if (x as f64 / 30.4375) <= 228.0 => ("HFAMonth".to_string(), true),
+        _ => return Ok(None),
+    };
+
+    if is_months {
+        let x_variable_months = (x_variable as f64) / 30.4375;
+        let x_variable_lower = x_variable_months.floor();
+        let x_variable_higher = x_variable_months.ceil();
+
+        println!("Months Old: {}", x_variable_months);
+
+        measure_lower = sqlx::query_as::<_, Measure>(
+            r#"
         SELECT
             l_value,
             m_value,
@@ -205,14 +242,69 @@ async fn get_stat_measures(
         WHERE
         indicator = ?
         AND
-        age_days = ?
+        x_variable = ?
+        AND
+        sex = ?
         "#,
-    )
-    .bind(&indicator)
-    .bind(&age_days)
-    .fetch_optional(db)
-    .await
-    .context("Failed to find z_score")?;
+        )
+        .bind(&actual_indicator)
+        .bind(&x_variable_lower)
+        .bind(&sex)
+        .fetch_optional(db)
+        .await
+        .context("Failed to find z_score")?;
+
+        measure_upper = sqlx::query_as::<_, Measure>(
+            r#"
+        SELECT
+            l_value,
+            m_value,
+            s_value
+        FROM growth_reference
+        WHERE
+        indicator = ?
+        AND
+        x_variable = ?
+        AND
+        sex = ?
+        "#,
+        )
+        .bind(&actual_indicator)
+        .bind(&x_variable_higher)
+        .bind(&sex)
+        .fetch_optional(db)
+        .await
+        .context("Failed to find z_score")?;
+
+        dbg!(&measure_lower);
+        dbg!(&measure_upper);
+
+        measure = measure_lower
+            .zip(measure_upper)
+            .map(|(lower, upper)| lower.interpolate(&upper, x_variable_months - x_variable_lower))
+    } else {
+        measure = sqlx::query_as::<_, Measure>(
+            r#"
+        SELECT
+            l_value,
+            m_value,
+            s_value
+        FROM growth_reference
+        WHERE
+        indicator = ?
+        AND
+        x_variable = ?
+        AND
+        sex = ?
+        "#,
+        )
+        .bind(&actual_indicator)
+        .bind(&x_variable)
+        .bind(&sex)
+        .fetch_optional(db)
+        .await
+        .context("Failed to find z_score")?;
+    }
 
     Ok(measure)
 }
