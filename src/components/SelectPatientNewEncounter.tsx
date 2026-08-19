@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Patient } from "../pages/Add.tsx";
+import type { Patient } from "../utils/types.ts";
 
 type ChildProps = {
   patients: Patient[];
   onSelectPatientId: (id: number) => void;
-}
+};
 
-function SelectPatientNewEncounter({ patients, onSelectPatientId }: ChildProps) {
+function SelectPatientNewEncounter({
+  patients,
+  onSelectPatientId,
+}: ChildProps) {
   const [chosenPatient, setChosenPatient] = useState("");
 
   const onSelectPatient = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,11 +17,12 @@ function SelectPatientNewEncounter({ patients, onSelectPatientId }: ChildProps) 
     setChosenPatient(name);
 
     const matchingPatient = patients.find(
-      (patient) => `${patient.lastName}, ${patient.firstName} #${patient.id}` === name
+      (patient) =>
+        `${patient.lastName}, ${patient.firstName} #${patient.id}` === name,
     );
 
     if (!matchingPatient) {
-      return
+      return;
     }
     onSelectPatientId(matchingPatient.id);
   };
@@ -54,20 +58,12 @@ function SelectPatientNewEncounter({ patients, onSelectPatientId }: ChildProps) 
           className="block w-full ps-9 pe-3 py-2.5 border border-gray-400 border-default-medium text-heading text-sm rounded-base focus:ring-gray-500 focus:border-gray-500 focus:outline-hadow-xs placeholder:text-body rounded-md bg-white"
         />
       </div>
-      <input
-        id="patient-choice-id"
-        type="hidden"
-        name="patient-choice-id"
-      />
+      <input id="patient-choice-id" type="hidden" name="patient-choice-id" />
       <datalist id="patient-list">
         {patients.map((patient) => (
           <option
             value={
-              patient.lastName +
-              ", " +
-              patient.firstName +
-              " #" +
-              patient.id
+              patient.lastName + ", " + patient.firstName + " #" + patient.id
             }
             data-id={patient.id}
             key={patient.id}
@@ -75,7 +71,7 @@ function SelectPatientNewEncounter({ patients, onSelectPatientId }: ChildProps) 
         ))}
       </datalist>
     </div>
-  )
+  );
 }
 
 export default SelectPatientNewEncounter;

@@ -7,3 +7,9 @@ export type Patient = {
   sex: string;
   created_at: string;
 };
+
+export type Measure = {
+  l_value: number;
+  m_value: number;
+  s_value: number;
+};
