@@ -104,7 +104,7 @@ function AddPage() {
     <main className="w-full flex">
       <Sidebar page="new visit" />
       <div className="w-full bg-slate-50 mt-5 rounded-tl-2xl border border-slate-300 dark:bg-slate-950 dark:border-slate-700">
-        <div className="p-3">
+        <div className="mx-auto max-w-5xl p-3">
           <PatientSearchDisplay
             loading={loading}
             patients={patients}
@@ -117,25 +117,36 @@ function AddPage() {
                 patientAge={patientAge}
                 ageInDays={ageInDays}
               />
-              <InformantInfoInput />
-              <ClinicalMeasurementsInput
-                onBlurWeight={onBlurWeight}
-                onBlurHeightOrLength={onBlurHeightOrLength}
-                onWeightInput={(value: number) => setWeight(value)}
-                onHeightOrLengthInput={(value: number) =>
-                  setHeightOrLength(value)
-                }
-                onSystolicInput={(value: number) => setSystolic(value)}
-                onDiastolicInput={(value: number) => setDiastolic(value)}
-                onHeartRateInput={(value: number) => setHeartRate(value)}
-                onRespiratoryRateInput={(value: number) =>
-                  setRespiratoryRate(value)
-                }
-                onTempInput={(value: number) => setTemp(value)}
-                weightScore={weightScore}
-                heightOrLengthScore={heightOrLengthScore}
-                ageInDays={ageInDays}
-              />
+              <div className="bg-white  shadow-sm rounded-md">
+                <InformantInfoInput />
+                <div className="flex">
+                  <ClinicalMeasurementsInput
+                    onBlurWeight={onBlurWeight}
+                    onBlurHeightOrLength={onBlurHeightOrLength}
+                    onWeightInput={(value: number) => setWeight(value)}
+                    onHeightOrLengthInput={(value: number) =>
+                      setHeightOrLength(value)
+                    }
+                    onSystolicInput={(value: number) => setSystolic(value)}
+                    onDiastolicInput={(value: number) => setDiastolic(value)}
+                    onHeartRateInput={(value: number) => setHeartRate(value)}
+                    onRespiratoryRateInput={(value: number) =>
+                      setRespiratoryRate(value)
+                    }
+                    onTempInput={(value: number) => setTemp(value)}
+                    weightScore={weightScore}
+                    heightOrLengthScore={heightOrLengthScore}
+                    ageInDays={ageInDays}
+                  />
+                </div>
+                <div className="bg-white rounded-md p-3 my-3 flex-col flex items-center col-span-2">
+                  <h1 className="font-bold text-xl mb-2">History</h1>
+                  <textarea className="p-2 rounded-md border border-slate-400 bg-white w-full h-full"></textarea>
+                </div>
+                <div className="bg-white rounded-md p-3 my-3 flex-col flex items-center col-span-2">
+                  <h1 className="font-bold text-xl mb-2">Allergies</h1>
+                </div>
+              </div>
             </>
           ) : null}
         </div>
