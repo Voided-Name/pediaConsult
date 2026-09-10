@@ -3,10 +3,10 @@ import { invoke } from "@tauri-apps/api/core";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Sidebar from "../components/Sidebar";
-import { inputStyle } from "../utils/style";
 import { keymap } from "../utils/keymap";
 import toast from "react-hot-toast";
 import InputField from "../components/InputField";
+import PageContent from "../components/PageContent";
 
 type Patient = {
   id: number;
@@ -65,9 +65,9 @@ function AddPatient() {
     }
   }
   return (
-    <main className="w-full flex">
+    <main>
       <Sidebar page="new patient" />
-      <div className="w-full bg-slate-50 mt-5 rounded-tl-2xl border border-slate-300 dark:bg-slate-950 dark:border-slate-700 p-3">
+      <PageContent>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col mt-3 gap-3 max-w-5xl mx-auto p-10 shadow-sm rounded-md bg-white">
             <h1 className="font-bold text-xl">Patient Information</h1>
@@ -102,7 +102,7 @@ function AddPatient() {
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-1">
-                <label className="font-semibold">Birth Date</label>
+                <label>Birth Date</label>
 
                 <Flatpickr
                   value={dateOfBirth}
@@ -120,7 +120,7 @@ function AddPatient() {
                 />
               </div>
               <div className="col-span-1">
-                <label className="font-semibold">Sex</label>
+                <label>Sex</label>
 
                 <select
                   className="p-2 rounded-md border border-slate-300 bg-slate-50 w-full outline-emerald-400  focus:outline"
@@ -135,15 +135,36 @@ function AddPatient() {
             <hr className="border-slate-400" />
 
             <button
-              className="p-3 bg-slate-900 border-slate-700 text-white rounded-md hover:bg-slate-800 dark:bg-slate-300 dark:text-slate-950 dark:hover:bg-slate-400 transition-colors duration-300 w-3xs ms-auto"
+              className="p-3 bg-slate-900 border-slate-700 text-white rounded-full hover:bg-slate-800 dark:bg-slate-300 dark:text-slate-950 dark:hover:bg-slate-400 transition-colors duration-300 w-3xs ms-auto font-bold"
               type="submit"
               disabled={saving}
             >
-              {saving ? "Adding Patient..." : "Add Patient"}
+              {saving ? (
+                "Adding Patient..."
+              ) : (
+                <div className="flex justify-center items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-plus-icon lucide-plus"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
+                  <span className="me-6">Add Patient</span>
+                </div>
+              )}
             </button>
           </div>
         </form>
-      </div>
+      </PageContent>
     </main>
   );
 }

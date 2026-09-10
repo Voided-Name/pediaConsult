@@ -29,7 +29,7 @@ function ClinicalMeasurementsInput({
   ageInDays,
 }: ChildProps) {
   return (
-    <div className="bg-white rounded-md p-10 flex-col flex">
+    <div className="bg-white rounded-md flex-col flex mt-10">
       <h1 className="font-bold text-xl mb-2">Clinical Measurements</h1>
       <div className="grid grid-cols-4 gap-3">
         <InputField

@@ -5,14 +5,14 @@ import Sidebar from "../components/Sidebar";
 import PatientsSearchBar from "../components/PatientsSearchBar";
 import { keymap } from "../utils/keymap";
 import { useEffect, useState } from "react";
-import { Patient } from "../utils/types.ts"
+import { Patient } from "../utils/types.ts";
 import { invoke } from "@tauri-apps/api/core";
 
 export const logCurrentTheme = (): void => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  console.log(`Current theme: ${isDark ? 'dark' : 'light'}`);
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  console.log(`Current theme: ${isDark ? "dark" : "light"}`);
 };
 
 function Patients() {
@@ -37,26 +37,40 @@ function Patients() {
   }, []);
 
   const logDocumentTheme = (): void => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
-    const isDark = document.documentElement.classList.contains('dark');
-    console.log(`Current theme: ${isDark ? 'dark' : 'light'}`);
+    const isDark = document.documentElement.classList.contains("dark");
+    console.log(`Current theme: ${isDark ? "dark" : "light"}`);
   };
 
-  const listPatients = patients.map(patient =>
-    <li key={patient.id}>{patient.lastName}, {patient.firstName} {patient.middleName}</li>
-  )
+  const listPatients = patients.map((patient) => (
+    <li key={patient.id}>
+      {patient.lastName}, {patient.firstName} {patient.middleName}
+    </li>
+  ));
 
   return (
-    <main className="w-full flex">
+    <main>
       <Sidebar page="patients" />
       <div className="w-full bg-slate-50 mt-5 rounded-tl-2xl border border-slate-300 dark:bg-slate-950 dark:border-slate-700 p-3">
         {loading ? (
           <p>Loading patients...</p>
         ) : patients.length === 0 ? (
           <div className="w-full flex justify-center items-center flex-col gap-3">
-            <img src="/undraw_file-search_cbur.svg" alt="No Data Yet" width={300} />
-            <h1 className="text-2xl text-emerald-900 font-semibold">No patients found in the database. <Link to="/patient/add" className="underline hover:text-emerald-500 transition-colors duration-100 font-bold">Add Patient</Link></h1>
+            <img
+              src="/undraw_file-search_cbur.svg"
+              alt="No Data Yet"
+              width={300}
+            />
+            <h1 className="text-2xl text-emerald-900 font-semibold">
+              No patients found in the database.{" "}
+              <Link
+                to="/patient/add"
+                className="underline hover:text-emerald-500 transition-colors duration-100 font-bold"
+              >
+                Add Patient
+              </Link>
+            </h1>
           </div>
         ) : (
           <div className="w-full">
@@ -68,9 +82,7 @@ function Patients() {
                 <SearchSort />
               </div>
             </div>
-            <ul>
-              {listPatients}
-            </ul>
+            <ul>{listPatients}</ul>
           </div>
         )}
       </div>

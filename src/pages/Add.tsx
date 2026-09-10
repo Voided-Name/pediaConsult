@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { calculateAge, calculateAgeInDays } from "../utils/date";
 import { Age } from "../utils/date";
@@ -10,9 +10,14 @@ import PatientSearchDisplay from "../components/PatientSearchDisplay.tsx";
 import PatientDisplay from "../components/PatientDisplay.tsx";
 import InformantInfoInput from "../components/InformantInfoInput.tsx";
 import ClinicalMeasurementsInput from "../components/ClinicalMeasurementsInput.tsx";
+import PageContent from "../components/PageContent.tsx";
+import Card from "../components/Card.tsx";
+import InputArea from "../components/InputArea.tsx";
+import NutritionalScreening from "../components/NutritionalScreening.tsx";
+("../components/NutritionalScreening.tsx");
 
 function AddPage() {
-  const { patients, loading, refetch } = usePatients();
+  const { patients, loading } = usePatients();
   const [chosenPatient, setChosenPatient] = useState<Patient | null>(null);
   const [chosenPatientId, setChosenPatientId] = useState<number | null>(null);
   const [ageInDays, setAgeInDays] = useState<number | null>(null);
@@ -28,6 +33,10 @@ function AddPage() {
   const [heartRate, setHeartRate] = useState<number | null>(null);
   const [respiratoryRate, setRespiratoryRate] = useState<number | null>(null);
   const [temp, setTemp] = useState<number | null>(null);
+
+  const [history, setHistory] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [comments, setComments] = useState("");
 
   keymap();
 
@@ -59,7 +68,7 @@ function AddPage() {
   }
 
   async function onBlurWeight() {
-    if (!weight) {
+    if (weight === null) {
       return;
     }
 
@@ -101,56 +110,60 @@ function AddPage() {
   };
 
   return (
-    <main className="w-full flex">
+    <main>
       <Sidebar page="new visit" />
-      <div className="w-full bg-slate-50 mt-5 rounded-tl-2xl border border-slate-300 dark:bg-slate-950 dark:border-slate-700">
-        <div className="mx-auto max-w-5xl p-3">
-          <PatientSearchDisplay
-            loading={loading}
-            patients={patients}
-            onSelectPatientId={handleOnSelectPatientId}
-          />
-          {chosenPatient ? (
-            <>
-              <PatientDisplay
-                chosenPatient={chosenPatient}
-                patientAge={patientAge}
-                ageInDays={ageInDays}
-              />
-              <div className="bg-white  shadow-sm rounded-md">
-                <InformantInfoInput />
-                <div className="flex">
-                  <ClinicalMeasurementsInput
-                    onBlurWeight={onBlurWeight}
-                    onBlurHeightOrLength={onBlurHeightOrLength}
-                    onWeightInput={(value: number) => setWeight(value)}
-                    onHeightOrLengthInput={(value: number) =>
-                      setHeightOrLength(value)
-                    }
-                    onSystolicInput={(value: number) => setSystolic(value)}
-                    onDiastolicInput={(value: number) => setDiastolic(value)}
-                    onHeartRateInput={(value: number) => setHeartRate(value)}
-                    onRespiratoryRateInput={(value: number) =>
-                      setRespiratoryRate(value)
-                    }
-                    onTempInput={(value: number) => setTemp(value)}
-                    weightScore={weightScore}
-                    heightOrLengthScore={heightOrLengthScore}
-                    ageInDays={ageInDays}
-                  />
-                </div>
-                <div className="bg-white rounded-md p-3 my-3 flex-col flex items-center col-span-2">
-                  <h1 className="font-bold text-xl mb-2">History</h1>
-                  <textarea className="p-2 rounded-md border border-slate-400 bg-white w-full h-full"></textarea>
-                </div>
-                <div className="bg-white rounded-md p-3 my-3 flex-col flex items-center col-span-2">
-                  <h1 className="font-bold text-xl mb-2">Allergies</h1>
-                </div>
+      <PageContent>
+        <PatientSearchDisplay
+          loading={loading}
+          patients={patients}
+          onSelectPatientId={handleOnSelectPatientId}
+        />
+        {chosenPatient ? (
+          <>
+            <PatientDisplay
+              chosenPatient={chosenPatient}
+              patientAge={patientAge}
+              ageInDays={ageInDays}
+            />
+            <Card>
+              <InformantInfoInput />
+              <div className="flex">
+                <ClinicalMeasurementsInput
+                  onBlurWeight={onBlurWeight}
+                  onBlurHeightOrLength={onBlurHeightOrLength}
+                  onWeightInput={(value: number) => setWeight(value)}
+                  onHeightOrLengthInput={(value: number) =>
+                    setHeightOrLength(value)
+                  }
+                  onSystolicInput={(value: number) => setSystolic(value)}
+                  onDiastolicInput={(value: number) => setDiastolic(value)}
+                  onHeartRateInput={(value: number) => setHeartRate(value)}
+                  onRespiratoryRateInput={(value: number) =>
+                    setRespiratoryRate(value)
+                  }
+                  onTempInput={(value: number) => setTemp(value)}
+                  weightScore={weightScore}
+                  heightOrLengthScore={heightOrLengthScore}
+                  ageInDays={ageInDays}
+                />
               </div>
-            </>
-          ) : null}
-        </div>
-      </div>
+              <InputArea
+                label="History"
+                onChange={(text: string) => setHistory(text)}
+              />
+              <InputArea
+                label="Allergies"
+                onChange={(text: string) => setHistory(text)}
+              />
+              <InputArea
+                label="Parental Comments/Concerns"
+                onChange={(text: string) => setHistory(text)}
+              />
+              <NutritionalScreening ageInDays={ageInDays} />
+            </Card>
+          </>
+        ) : null}
+      </PageContent>
     </main>
   );
 }

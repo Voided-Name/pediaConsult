@@ -1,67 +1,22 @@
+pub mod date_utils;
+mod models;
+
+use crate::date_utils::age_between;
 use anyhow::{Context, Result};
+use chrono::{Local, NaiveDate};
+use models::measure::Measure;
+use models::patient::{CreatePatient, Patient, UpdatePatient};
+use models::screening_rules::RulesFile;
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions},
     FromRow, SqlitePool,
 };
-use std::{path::PathBuf, time::Duration};
+use std::{fs::File, io::BufReader, path::PathBuf, time::Duration};
 use tauri::{Manager, State};
 
 struct AppState {
     db: SqlitePool,
-}
-
-#[derive(Debug, Serialize, FromRow)]
-#[serde(rename_all = "camelCase")]
-struct Patient {
-    id: i64,
-    first_name: String,
-    last_name: String,
-    middle_name: Option<String>,
-    date_of_birth: String,
-    sex: String,
-    created_at: String,
-}
-
-#[derive(Debug, Serialize, FromRow)]
-#[serde(rename_all = "camelCase")]
-struct Measure {
-    l_value: f64,
-    m_value: f64,
-    s_value: f64,
-}
-
-impl Measure {
-    pub fn interpolate(&self, other: &Self, t: f64) -> Self {
-        dbg!(t);
-        let lerp = |a: f64, b: f64| a + (t * (b - a));
-
-        Self {
-            l_value: lerp(self.l_value, other.l_value),
-            m_value: lerp(self.m_value, other.m_value),
-            s_value: lerp(self.s_value, other.s_value),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct CreatePatient {
-    first_name: String,
-    last_name: String,
-    middle_name: Option<String>,
-    date_of_birth: String,
-    sex: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct UpdatePatient {
-    first_name: String,
-    last_name: String,
-    middle_name: Option<String>,
-    date_of_birth: String,
-    sex: String,
 }
 
 async fn init_database(db_path: PathBuf) -> Result<SqlitePool> {
@@ -111,6 +66,40 @@ async fn find_patient_by_id(db: &SqlitePool, id: i64) -> Result<Option<Patient>>
     .context("Failed to find patient")?;
 
     Ok(patient)
+}
+
+#[tauri::command]
+async fn get_dynamic_form_fields(
+    state: State<'_, AppState>,
+    patient: CreatePatient,
+) -> Result<Patient, String> {
+    let result = sqlx::query(
+        r#"
+        INSERT INTO patient(
+            first_name,
+            last_name,
+            middle_name,
+            date_of_birth,
+            sex
+        )
+        VALUES (?, ?, ?, ?, ?)
+        "#,
+    )
+    .bind(&patient.first_name)
+    .bind(&patient.last_name)
+    .bind(&patient.middle_name)
+    .bind(&patient.date_of_birth)
+    .bind(&patient.sex)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    let id = result.last_insert_rowid();
+
+    find_patient_by_id(&state.db, id)
+        .await
+        .map_err(|error| error.to_string())?
+        .ok_or_else(|| "Patient was created but could not be retrieved".to_string())
 }
 
 #[tauri::command]
@@ -203,6 +192,37 @@ async fn get_z_score(
     }
 
     Ok(Some(z_score))
+}
+
+fn get_age_bracket(date_of_birth: String) -> Result<String, &'static str> {
+    let file = File::open("../resources/screeningrules.json")
+        .map_err(|_| "Failed to to open screeningrules.json: File not found or inaccessible");
+
+    let reader = match file {
+        Ok(f) => BufReader::new(f),
+        Err(e) => return Err(e),
+    };
+
+    let rules_json: RulesFile =
+        serde_json::from_reader(reader).map_err(|_| "Failed to parse JSON")?;
+
+    let birth_date = NaiveDate::parse_from_str(&date_of_birth, "%F").unwrap();
+    let today = Local::now().date_naive();
+
+    let age = age_between(birth_date, today);
+
+    return Ok(String::from("test"));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_age_bracket() {
+        let result = get_age_bracket("2024-01-01".to_string());
+        dbg!(result);
+    }
 }
 
 async fn get_stat_measures(

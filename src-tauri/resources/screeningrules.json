@@ -1,0 +1,588 @@
+{
+  "ageBrackets": [
+    {
+      "id": "2_28_days",
+      "label": "2-28 Days Old",
+      "age": {
+        "unit": "day",
+        "min": 2,
+        "maxInclusive": 28
+      }
+    },
+    {
+      "id": "1_month",
+      "label": "1 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 1
+      }
+    },
+    {
+      "id": "2_month",
+      "label": "2 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 2
+      }
+    },
+    {
+      "id": "4_month",
+      "label": "4 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 4
+      }
+    },
+    {
+      "id": "6_month",
+      "label": "6 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 6
+      }
+    },
+    {
+      "id": "9_month",
+      "label": "9 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 9
+      }
+    },
+    {
+      "id": "12_month",
+      "label": "12 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 12
+      }
+    },
+    {
+      "id": "15_month",
+      "label": "15 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 15
+      }
+    },
+    {
+      "id": "18_month",
+      "label": "18 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 18
+      }
+    },
+    {
+      "id": "24_month",
+      "label": "24 Month Old",
+      "age": {
+        "unit": "month",
+        "at": 24
+      }
+    },
+    {
+      "id": "3_year",
+      "label": "3 Year Old",
+      "age": {
+        "unit": "year",
+        "at": 3
+      }
+    },
+    {
+      "id": "4_year",
+      "label": "4 Year Old",
+      "age": {
+        "unit": "year",
+        "at": 4
+      }
+    },
+    {
+      "id": "5_year",
+      "label": "5 Year Old",
+      "age": {
+        "unit": "year",
+        "at": 5
+      }
+    },
+    {
+      "id": "6_year",
+      "label": "6 Year Old",
+      "age": {
+        "unit": "year",
+        "at": 6
+      }
+    },
+    {
+      "id": "7_8_year",
+      "label": "7-8 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 7,
+        "maxExclusive": 9
+      }
+    },
+    {
+      "id": "9_10_year",
+      "label": "9-10 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 9,
+        "maxExclusive": 11
+      }
+    },
+    {
+      "id": "11_12_year",
+      "label": "11-12 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 11,
+        "maxExclusive": 13
+      }
+    },
+    {
+      "id": "13_14_year",
+      "label": "13-14 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 13,
+        "maxExclusive": 15
+      }
+    },
+    {
+      "id": "15_17_year",
+      "label": "15-17 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 15,
+        "maxExclusive": 18
+      }
+    },
+    {
+      "id": "18_19_year",
+      "label": "18-19 Year Old",
+      "age": {
+        "unit": "year",
+        "min": 18,
+        "maxExclusive": 20
+      }
+    }
+  ],
+  "rules": [
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["2_28_days", "1_month", "2_month", "4_month"]
+      },
+      "fields": [
+        {
+          "id": "breastfeeding",
+          "label": "Breastfeeding",
+          "type": "checkbox"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "checkbox_text"
+        }
+      ]
+    },
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["6_month"]
+      },
+      "fields": [
+        {
+          "id": "breastfeeding",
+          "label": "Breastfeeding",
+          "type": "checkbox"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "checkbox_text"
+        },
+        {
+          "id": "solids",
+          "label": "Solids",
+          "type": "checkbox_text"
+        }
+      ]
+    },
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["9_month", "12_month"]
+      },
+      "fields": [
+        {
+          "id": "breastfeeding",
+          "label": "Breastfeeding",
+          "type": "checkbox"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "checkbox_text"
+        },
+        {
+          "id": "healthy_snacks",
+          "label": "Education: Healthy Snacks",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["15_month", "18_month", "24_month", "3_year"]
+      },
+      "fields": [
+        {
+          "id": "supplements",
+          "label": "Supplements",
+          "type": "text"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "text"
+        },
+        {
+          "id": "table_foods",
+          "label": "Table Foods",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["4_year", "5_year", "6_year", "7_8_year", "9_10_year"]
+      },
+      "fields": [
+        {
+          "id": "supplements",
+          "label": "Supplements",
+          "type": "text"
+        },
+        {
+          "id": "physical_activity",
+          "label": "Physical Activity",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Nutritional Screening",
+      "when": {
+        "ageBrackets": ["11_12_year", "13_14_year", "15_17_year", "18_19_year"]
+      },
+      "fields": [
+        {
+          "id": "supplements",
+          "label": "Supplements",
+          "type": "text"
+        },
+        {
+          "id": "physical_activity",
+          "label": "Physical Activity",
+          "type": "text"
+        },
+        {
+          "id": "adequate_sleep",
+          "label": "Adequate Sleep",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Developmental Screen",
+      "when": {
+        "ageBrackets": ["2_28_days"]
+      },
+      "fields": [
+        {
+          "id": "age_appropriate",
+          "label": "Age Appropriate (rooting reflex, startle, suck & swallow)",
+          "type": "yes_no"
+        },
+        {
+          "id": "objective_testing",
+          "label": "If suspicious, specific objective testing performed",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Developmental Screen",
+      "when": {
+        "ageBrackets": ["1_month"]
+      },
+      "fields": [
+        {
+          "id": "age_appropriate",
+          "label": "Age Appropriate (responds to sounds, follows with eyes?)",
+          "type": "yes_no"
+        },
+        {
+          "id": "objective_testing",
+          "label": "If suspicious, specific objective testing performed",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Developmental Screen",
+      "when": {
+        "ageBrackets": ["2_month"]
+      },
+      "fields": [
+        {
+          "id": "age_appropriate",
+          "label": "Age Appropriate (social smile, tries to lift head, vocalizes?)",
+          "type": "yes_no"
+        },
+        {
+          "id": "objective_testing",
+          "label": "If suspicious, specific objective testing performed",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Developmental Screen",
+      "when": {
+        "ageBrackets": ["4_month", "6_month"]
+      },
+      "fields": [
+        {
+          "id": "age_appropriate",
+          "label": "Age Appropriate (babbles, coos, rolls front to back, head control?)",
+          "type": "yes_no"
+        },
+        {
+          "id": "objective_testing",
+          "label": "If suspicious, specific objective testing performed",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Developmental Screen",
+      "when": {
+        "ageBrackets": [
+          "9_month",
+          "12_month",
+          "15_month",
+          "18_month",
+          "24_month",
+          "3_year",
+          "4_year",
+          "5_year",
+          "6_year",
+          "7_8_year"
+        ]
+      },
+      "fields": [
+        {
+          "id": "general_screening_peds",
+          "label": "General Screening / PEDS",
+          "type": "checkbox"
+        },
+        {
+          "id": "activities_risk_level",
+          "label": "Activities (risk level)",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "section": "Behavioral Screen",
+      "when": {
+        "ageBrackets": ["9_10_year"]
+      },
+      "fields": [
+        {
+          "id": "depression_anxiety",
+          "label": "Depression / Anxiety",
+          "type": "checkbox"
+        },
+        {
+          "id": "activities_risk_level",
+          "label": "Activities (risk level)",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "section": "Behavioral Screen",
+      "when": {
+        "ageBrackets": ["11_12_year", "13_14_year", "15_17_year", "18_19_year"]
+      },
+      "fields": [
+        {
+          "id": "home",
+          "label": "Home",
+          "type": "checkbox"
+        },
+        {
+          "id": "education",
+          "label": "Education",
+          "type": "checkbox"
+        },
+        {
+          "id": "activities",
+          "label": "Activities",
+          "type": "checkbox"
+        },
+        {
+          "id": "drugs_alcohol",
+          "label": "Drugs/Alcohol",
+          "type": "checkbox"
+        },
+        {
+          "id": "sexual_activity",
+          "label": "Sexual Activity",
+          "type": "checkbox"
+        },
+        {
+          "id": "suicide",
+          "label": "Suicide",
+          "type": "checkbox"
+        },
+        {
+          "id": "safety",
+          "label": "Safety",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "section": "Dental Screening",
+      "when": {
+        "ageBrackets": ["9_month"]
+      },
+      "fields": [
+        {
+          "id": "brushing_teeth",
+          "label": "Brushing Teeth?",
+          "type": "yes_no"
+        },
+        {
+          "id": "limit_sugar_intake",
+          "label": "Education: Limit Sugar Intake",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Dental Screening",
+      "when": {
+        "ageBrackets": [
+          "12_month",
+          "15_month",
+          "18_month",
+          "24_month",
+          "3_year",
+          "4_year",
+          "5_year",
+          "6_year",
+          "7_8_year",
+          "9_10_year",
+          "11_12_year",
+          "13_14_year",
+          "15_17_year",
+          "18_19_year"
+        ]
+      },
+      "fields": [
+        {
+          "id": "brushing_teeth",
+          "label": "Brushing Teeth?",
+          "type": "yes_no"
+        },
+        {
+          "id": "dental_visit",
+          "label": "Dental Visit",
+          "type": "yes_no"
+        },
+        {
+          "id": "limit_sugar_intake",
+          "label": "Education: Limit Sugar Intake",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Physical Examination",
+      "when": {
+        "ageBrackets": ["11_12_year", "13_14_year", "15_17_year", "18_19_year"]
+      },
+      "fields": [
+        {
+          "id": "pelvic_exam",
+          "label": "Pelvic Exam",
+          "type": "checkbox"
+        }
+      ]
+    },
+    {
+      "section": "Labs Ordered",
+      "when": {
+        "ageBrackets": ["9_month"]
+      },
+      "fields": [
+        {
+          "id": "tuberculin_skin_test",
+          "label": "Tuberculin Skin Test (if at risk)",
+          "type": "checkbox"
+        },
+        {
+          "id": "others",
+          "label": "Others",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "section": "Labs Ordered",
+      "when": {
+        "ageBrackets": [
+          "12_month",
+          "15_month",
+          "18_month",
+          "24_month",
+          "3_year",
+          "4_year",
+          "5_year",
+          "6_year",
+          "7_8_year",
+          "9_10_year",
+          "11_12_year",
+          "13_14_year",
+          "15_17_year",
+          "18_19_year"
+        ]
+      },
+      "fields": [
+        {
+          "id": "tuberculin_skin_test",
+          "label": "Tuberculin Skin Test (if at risk)",
+          "type": "checkbox"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC",
+          "type": "checkbox"
+        },
+        {
+          "id": "others",
+          "label": "Others",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

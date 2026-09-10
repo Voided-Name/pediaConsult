@@ -7,7 +7,7 @@ type ChildProps = {
 function InputField({ label, type, className = "", ...props }: ChildProps) {
   return (
     <div className="col-span-1">
-      <label className={props.disabled ? "font-light" : "font-semibold"}>
+      <label className={props.disabled ? "font-light" : "font-normal"}>
         {label}
       </label>
 

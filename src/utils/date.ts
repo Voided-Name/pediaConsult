@@ -14,23 +14,24 @@ export function getLocalToday(): string {
   return `${year}-${month}-${day}`;
 }
 
-export function calculateAgeInDays(dateOfBirth: string): number {
+export function calculateAgeInDays(
+  dateOfBirth: string,
+  referenceDate = new Date(),
+): number {
   const [year, month, day] = dateOfBirth.split("-").map(Number);
 
-  const birthDate = new Date(year, month - 1, day);
-  const today = new Date();
+  const birthUtc = Date.UTC(year, month - 1, day);
 
-  // Normalize both dates to midnight
-  birthDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  const millisecondsPerDay = 1000 * 60 * 60 * 24;
-
-  return Math.floor(
-    (today.getTime() - birthDate.getTime()) / millisecondsPerDay
+  const referenceUtc = Date.UTC(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
   );
-}
 
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+  return Math.floor((referenceUtc - birthUtc) / millisecondsPerDay);
+}
 
 export function calculateAge(dateOfBirth: string): Age {
   const [year, month, day] = dateOfBirth.split("-").map(Number);
@@ -48,7 +49,7 @@ export function calculateAge(dateOfBirth: string): Age {
     const daysInPreviousMonth = new Date(
       today.getFullYear(),
       today.getMonth(),
-      0
+      0,
     ).getDate();
 
     days += daysInPreviousMonth;
