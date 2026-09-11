@@ -1,5 +1,12 @@
 use serde::Deserialize;
 
+pub struct ScreeningRules {
+    pub rules: RulesFile,
+    pub year_ages: Vec<(AgeBracket, u32)>,
+    pub month_ages: Vec<(AgeBracket, u32)>,
+    pub day_ages: Vec<(AgeBracket, u32)>,
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RulesFile {
@@ -7,14 +14,14 @@ pub struct RulesFile {
     pub rules: Vec<Rule>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct AgeBracket {
     pub id: String,
     pub label: String,
     pub age: Age,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Age {
     pub unit: String,

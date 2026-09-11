@@ -2,6 +2,7 @@ pub mod date_utils;
 mod models;
 
 use crate::date_utils::age_between;
+use crate::models::screening_rules::AgeBracket;
 use anyhow::{Context, Result};
 use chrono::{Local, NaiveDate};
 use models::measure::Measure;
@@ -11,7 +12,7 @@ use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions},
     SqlitePool,
 };
-use std::{fs::File, io::BufReader, path::PathBuf, time::Duration};
+use std::{fs::File, path::PathBuf, time::Duration};
 use tauri::{Manager, State};
 
 struct AppState {
@@ -193,34 +194,44 @@ async fn get_z_score(
     Ok(Some(z_score))
 }
 
-fn get_age_bracket(date_of_birth: String) -> Result<String, String> {
-    let file = File::open("resources/screeningrules.json")
-        .map_err(|_| "Failed to to open screeningrules.json: File not found or inaccessible");
-    let reader = match file {
-        Ok(f) => BufReader::new(f),
-        Err(e) => return Err(e.to_string()),
+fn get_age_bracket(date_of_birth: String) -> Result<AgeBracket, String> {
+    // setup
+    let file = match File::open("resources/screeningrules.json") {
+        Ok(file) => file,
+        Err(_) => return Err("File cannot be opened!".to_string()),
     };
-    let rules_json: RulesFile =
-        serde_json::from_reader(reader).map_err(|_| "Failed to parse JSON")?;
+
+    let rules_json: RulesFile = match serde_json::from_reader(file) {
+        Ok(rules_json) => rules_json,
+        Err(_) => return Err("File cannot be deserialized!".to_string()),
+    };
+
+    let mut year_ages: Vec<(&AgeBracket, u32)> = rules_json
+        .age_brackets
+        .iter()
+        .filter(|b| b.age.unit == "year")
+        .filter_map(|b| b.age.at.or(b.age.min).map(|age| (b, age)))
+        .collect();
+    year_ages.sort_by_key(|&(_, age)| age);
+
+    let mut month_ages: Vec<(&AgeBracket, u32)> = rules_json
+        .age_brackets
+        .iter()
+        .filter(|b| b.age.unit == "month")
+        .filter_map(|b| b.age.at.map(|age| (b, age)))
+        .collect();
+    month_ages.sort_by_key(|&(_, age)| age);
+
+    let mut day_ages: Vec<(&AgeBracket, u32)> = rules_json
+        .age_brackets
+        .iter()
+        .filter(|b| b.age.unit == "day")
+        .filter_map(|b| b.age.at.or(b.age.min).map(|age| (b, age)))
+        .collect();
+    day_ages.sort_by_key(|&(_, age)| age);
 
     let birth_date = NaiveDate::parse_from_str(&date_of_birth, "%F").unwrap();
     let today = Local::now().date_naive();
-
-    let min_year_age_option = rules_json
-        .age_brackets
-        .iter()
-        .filter(|b| b.age.unit == "year")
-        .filter_map(|b| b.age.at)
-        .min();
-
-    let mut year_ages: Vec<(String, u32)> = rules_json
-        .age_brackets
-        .iter()
-        .filter(|b| b.age.unit == "year")
-        .filter_map(|b| b.age.at.or(b.age.min).map(|age| (b.id.clone(), age)))
-        .collect();
-
-    year_ages.sort_by_key(|&(_, age)| age);
 
     println!("{:?}", year_ages);
 
@@ -231,18 +242,37 @@ fn get_age_bracket(date_of_birth: String) -> Result<String, String> {
 
     println!("{:?}", age);
 
-    if let Some(min_year_age) = min_year_age_option {
-        let age_bracket: String = year_ages
-            .iter()
-            .rev()
-            .find(|(_, num)| age.years >= *num)
-            .map(|(s, _)| s.clone())
-            .ok_or("No matching age bracket".to_string())?;
+    let age_bracket: AgeBracket = match year_ages
+        .iter()
+        .rev()
+        .find(|(_, num)| age.years >= *num)
+        .map(|&(s, _)| s.clone())
+        .or_else(|| {
+            month_ages
+                .iter()
+                .rev()
+                .find(|(_, num)| age.years * 12 + age.months >= *num)
+                .map(|&(s, _)| s.clone())
+        })
+        .or_else(|| {
+            day_ages
+                .iter()
+                .rev()
+                .find(|(_, num)| age.days >= (*num).into())
+                .map(|&(s, _)| s.clone())
+        }) {
+        Some(bracket) => bracket,
+        None => return Err("No matching age bracket".to_string()),
+    };
 
-        return Ok(age_bracket);
+    if age_bracket.age.unit == "days" && age.days > 28 {
+        let min_month_age_bracket = match month_ages.iter().min_by_key(|(_, age)| *age) {
+            Some((bracket, _)) => *bracket,
+            None => return Err("No matching age bracket".to_string()),
+        };
     }
 
-    return Ok(String::from("less"));
+    return Ok(age_bracket);
 }
 
 #[cfg(test)]
@@ -251,8 +281,8 @@ mod tests {
 
     #[test]
     fn test_age_bracket() {
-        let result = get_age_bracket("2023-01-01".to_string());
-        dbg!(result);
+        let result = get_age_bracket("2026-08-13".to_string());
+        let _ = dbg!(result);
     }
 }
 
