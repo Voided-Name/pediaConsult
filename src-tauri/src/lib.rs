@@ -17,6 +17,7 @@ use tauri::{Manager, State};
 
 struct AppState {
     db: SqlitePool,
+    rules: RulesFile,
 }
 
 async fn init_database(db_path: PathBuf) -> Result<SqlitePool> {
@@ -194,19 +195,8 @@ async fn get_z_score(
     Ok(Some(z_score))
 }
 
-fn get_age_bracket(date_of_birth: String) -> Result<AgeBracket, String> {
-    // setup
-    let file = match File::open("resources/screeningrules.json") {
-        Ok(file) => file,
-        Err(_) => return Err("File cannot be opened!".to_string()),
-    };
-
-    let rules_json: RulesFile = match serde_json::from_reader(file) {
-        Ok(rules_json) => rules_json,
-        Err(_) => return Err("File cannot be deserialized!".to_string()),
-    };
-
-    let mut year_ages: Vec<(&AgeBracket, u32)> = rules_json
+fn get_age_bracket(date_of_birth: String, rules: &RulesFile) -> Result<AgeBracket, String> {
+    let mut year_ages: Vec<(&AgeBracket, u32)> = rules
         .age_brackets
         .iter()
         .filter(|b| b.age.unit == "year")
@@ -214,7 +204,7 @@ fn get_age_bracket(date_of_birth: String) -> Result<AgeBracket, String> {
         .collect();
     year_ages.sort_by_key(|&(_, age)| age);
 
-    let mut month_ages: Vec<(&AgeBracket, u32)> = rules_json
+    let mut month_ages: Vec<(&AgeBracket, u32)> = rules
         .age_brackets
         .iter()
         .filter(|b| b.age.unit == "month")
@@ -222,7 +212,7 @@ fn get_age_bracket(date_of_birth: String) -> Result<AgeBracket, String> {
         .collect();
     month_ages.sort_by_key(|&(_, age)| age);
 
-    let mut day_ages: Vec<(&AgeBracket, u32)> = rules_json
+    let mut day_ages: Vec<(&AgeBracket, u32)> = rules
         .age_brackets
         .iter()
         .filter(|b| b.age.unit == "day")
@@ -281,8 +271,18 @@ mod tests {
 
     #[test]
     fn test_age_bracket() {
-        let result = get_age_bracket("2026-08-13".to_string());
-        let _ = dbg!(result);
+        let rules: RulesFile =
+            serde_json::from_str(include_str!("../resources/screeningrules.json"))
+                .expect("screeningrules.json should be valid");
+
+        let db = SqlitePool::connect_lazy("sqlite::memory:")
+            .expect("in-memory database should initialize");
+
+        let state = AppState { db, rules };
+
+        let result = get_age_bracket("2026-08-13".to_string(), &state);
+
+        dbg!(result);
     }
 }
 
@@ -446,9 +446,15 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let mut file =
+        std::fs::File::open("resources/screeningrules.json").expect("rules.json should exist");
+
+    let rules_json: RulesFile =
+        serde_json::from_reader(&mut file).expect("rules.json should be valid JSON");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .setup(|app| {
+        .setup(move |app| {
             let app_data_dir = app.path().app_data_dir()?;
 
             std::fs::create_dir_all(&app_data_dir)?;
@@ -459,7 +465,10 @@ pub fn run() {
 
             let pool = tauri::async_runtime::block_on(init_database(db_path))?;
 
-            app.manage(AppState { db: pool });
+            app.manage(AppState {
+                db: pool,
+                rules: rules_json,
+            });
 
             Ok(())
         })
