@@ -12,12 +12,14 @@ function AgeBracketModal({ suggestedBracket }: ChildProps) {
   }, []);
 
   return (
-    <div>
-      <dialog ref={suggestedDialog} id="suggestedDialog">
-        <button autoFocus>Close</button>
-        <p>This modal dialog has a groovy backdrop!</p>
-      </dialog>
-    </div>
+    <dialog
+      ref={suggestedDialog}
+      id="suggestedDialog"
+      className="fixed inset-0 m-auto"
+    >
+      <button autoFocus>Close</button>
+      <p>This modal dialog has a groovy backdrop!</p>
+    </dialog>
   );
 }
 
