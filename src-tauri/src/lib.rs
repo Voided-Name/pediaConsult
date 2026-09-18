@@ -8,16 +8,24 @@ use chrono::{Local, NaiveDate};
 use models::measure::Measure;
 use models::patient::{CreatePatient, Patient, UpdatePatient};
 use models::screening_rules::RulesFile;
+use serde::Serialize;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions},
     SqlitePool,
 };
-use std::{fs::File, path::PathBuf, time::Duration};
+use std::{path::PathBuf, time::Duration};
 use tauri::{Manager, State};
 
 struct AppState {
     db: SqlitePool,
     rules: RulesFile,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SuggestedBracket {
+    suggested: AgeBracket,
+    brackets: Vec<AgeBracket>,
 }
 
 async fn init_database(db_path: PathBuf) -> Result<SqlitePool> {
@@ -166,6 +174,19 @@ async fn get_patient(state: State<'_, AppState>, id: i64) -> Result<Option<Patie
 }
 
 #[tauri::command]
+async fn get_suggested_age_bracket(
+    state: State<'_, AppState>,
+    birth_date: String,
+) -> Result<SuggestedBracket, String> {
+    let suggested = get_age_bracket(birth_date, &state.rules)?;
+
+    Ok(SuggestedBracket {
+        suggested,
+        brackets: state.rules.age_brackets.clone(),
+    })
+}
+
+#[tauri::command]
 async fn get_z_score(
     state: State<'_, AppState>,
     indicator: String,
@@ -256,34 +277,13 @@ fn get_age_bracket(date_of_birth: String, rules: &RulesFile) -> Result<AgeBracke
     };
 
     if age_bracket.age.unit == "days" && age.days > 28 {
-        let min_month_age_bracket = match month_ages.iter().min_by_key(|(_, age)| *age) {
+        match month_ages.iter().min_by_key(|(_, age)| *age) {
             Some((bracket, _)) => *bracket,
             None => return Err("No matching age bracket".to_string()),
         };
     }
 
     return Ok(age_bracket);
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_age_bracket() {
-        let rules: RulesFile =
-            serde_json::from_str(include_str!("../resources/screeningrules.json"))
-                .expect("screeningrules.json should be valid");
-
-        let db = SqlitePool::connect_lazy("sqlite::memory:")
-            .expect("in-memory database should initialize");
-
-        let state = AppState { db, rules };
-
-        let result = get_age_bracket("2026-08-13".to_string(), &state);
-
-        dbg!(result);
-    }
 }
 
 async fn get_stat_measures(
@@ -479,7 +479,8 @@ pub fn run() {
             get_patient,
             update_patient,
             delete_patient,
-            get_z_score
+            get_z_score,
+            get_suggested_age_bracket
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub struct ScreeningRules {
     pub rules: RulesFile,
@@ -14,14 +14,14 @@ pub struct RulesFile {
     pub rules: Vec<Rule>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AgeBracket {
     pub id: String,
     pub label: String,
     pub age: Age,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Age {
     pub unit: String,
