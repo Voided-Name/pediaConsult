@@ -13,3 +13,22 @@ export type Measure = {
   m_value: number;
   s_value: number;
 };
+
+export type SuggestedBracket = {
+  suggested: AgeBracket;
+  brackets: AgeBracket[];
+};
+
+export type AgeBracket = {
+  id: string;
+  label: string;
+  age: Age;
+};
+
+export type Age = {
+  unit: String;
+  at: number | null;
+  min: number | null;
+  max_inclusive: number | null;
+  max_exclusive: number | null;
+};

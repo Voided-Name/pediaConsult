@@ -4,7 +4,7 @@ import { calculateAge, calculateAgeInDays } from "../utils/date";
 import { Age } from "../utils/date";
 import Sidebar from "../components/Sidebar";
 import { keymap } from "../utils/keymap";
-import { Patient } from "../utils/types.ts";
+import { Patient, SuggestedBracket } from "../utils/types.ts";
 import { usePatients } from "../hooks/fetchPatients.ts";
 import PatientSearchDisplay from "../components/PatientSearchDisplay.tsx";
 import PatientDisplay from "../components/PatientDisplay.tsx";
@@ -14,6 +14,7 @@ import PageContent from "../components/PageContent.tsx";
 import Card from "../components/Card.tsx";
 import InputArea from "../components/InputArea.tsx";
 import NutritionalScreening from "../components/NutritionalScreening.tsx";
+import AgeBracketModal from "../components/AgeBracketModal.tsx";
 ("../components/NutritionalScreening.tsx");
 
 function AddPage() {
@@ -37,6 +38,8 @@ function AddPage() {
   const [history, setHistory] = useState("");
   const [allergies, setAllergies] = useState("");
   const [comments, setComments] = useState("");
+  const [suggestedBracket, setSuggestedBracket] =
+    useState<SuggestedBracket | null>(null);
 
   keymap();
 
@@ -94,6 +97,21 @@ function AddPage() {
     }
   }
 
+  async function fetchSuggestedBracket(dateOfBirth: string) {
+    try {
+      const brackets = await invoke<SuggestedBracket>(
+        "get_suggested_age_bracket",
+        {
+          birthDate: dateOfBirth,
+        },
+      );
+
+      setSuggestedBracket(brackets);
+    } catch (error) {
+      console.log("Failed to fetch age bracket: " + error);
+    }
+  }
+
   const handleOnSelectPatientId = (id: number) => {
     setChosenPatientId(id);
 
@@ -107,6 +125,7 @@ function AddPage() {
     let ageDays = calculateAgeInDays(patient.dateOfBirth);
     setAgeInDays(ageDays);
     setPatientAge(calculateAge(patient.dateOfBirth));
+    fetchSuggestedBracket(patient.dateOfBirth);
   };
 
   return (
@@ -118,7 +137,7 @@ function AddPage() {
           patients={patients}
           onSelectPatientId={handleOnSelectPatientId}
         />
-        {chosenPatient ? (
+        {chosenPatient && suggestedBracket ? (
           <>
             <PatientDisplay
               chosenPatient={chosenPatient}
@@ -159,7 +178,8 @@ function AddPage() {
                 label="Parental Comments/Concerns"
                 onChange={(text: string) => setHistory(text)}
               />
-              <NutritionalScreening dateOfBirth={chosenPatient.dateOfBirth} />
+              <AgeBracketModal suggestedBracket={suggestedBracket} />
+              <NutritionalScreening />
             </Card>
           </>
         ) : null}
