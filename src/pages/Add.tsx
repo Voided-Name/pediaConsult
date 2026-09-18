@@ -159,7 +159,7 @@ function AddPage() {
                 label="Parental Comments/Concerns"
                 onChange={(text: string) => setHistory(text)}
               />
-              <NutritionalScreening ageInDays={ageInDays} />
+              <NutritionalScreening dateOfBirth={chosenPatient.dateOfBirth} />
             </Card>
           </>
         ) : null}
